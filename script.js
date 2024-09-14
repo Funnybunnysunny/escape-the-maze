@@ -15,7 +15,8 @@ function startGame() {
     document.getElementById("status").innerText = "";
     drawMaze();
     startTimer();
-    window.addEventListener("keydown", movePlayer);
+    window.addEventListener("keydown", movePlayer); // Listen for arrow key presses
+    console.log("Event listener added"); // Debugging: Check if listener is added
 }
 
 // Timer for countdown
@@ -87,6 +88,8 @@ function drawMaze() {
 function movePlayer(e) {
     if (gameOver) return;
 
+    console.log(e.key); // Debugging: Check if key presses are detected
+
     let newX = player.x;
     let newY = player.y;
 
@@ -95,7 +98,8 @@ function movePlayer(e) {
     if (e.key === "ArrowLeft" && player.x > 0 && maze[player.y][player.x - 1] === 0) newX--;
     if (e.key === "ArrowRight" && player.x < cols - 1 && maze[player.y][player.x + 1] === 0) newX++;
 
-    if (maze[newY][newX] === 0) { // Only move if there’s an open path
+    if (newX !== player.x || newY !== player.y) {
+        console.log(`Moved to: (${newX}, ${newY})`); // Debugging: Confirm movement
         player.x = newX;
         player.y = newY;
         drawMaze();
