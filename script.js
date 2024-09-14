@@ -16,7 +16,6 @@ function startGame() {
     drawMaze();
     startTimer();
     window.addEventListener("keydown", movePlayer); // Listen for arrow key presses
-    console.log("Event listener added"); // Debugging: Check if listener is added
 }
 
 // Timer for countdown
@@ -32,38 +31,23 @@ function startTimer() {
     }, 1000);
 }
 
-// Generate a simple random maze
+// Generate a simple random maze with limited walls
 function generateMaze() {
-    const maze = new Array(rows).fill(0).map(() => new Array(cols).fill(1)); // Fill with walls (1)
+    const maze = new Array(rows).fill(0).map(() => new Array(cols).fill(0)); // Start with all open spaces (0)
+    const wallLimit = 20; // Maximum number of walls
+    let wallsPlaced = 0;
 
-    // Create a path from start to finish
-    let currentRow = 0;
-    let currentCol = 0;
-    maze[currentRow][currentCol] = 0; // Start point
+    // Place walls randomly while keeping a clear path
+    while (wallsPlaced < wallLimit) {
+        const row = Math.floor(Math.random() * rows);
+        const col = Math.floor(Math.random() * cols);
 
-    while (currentRow < rows - 1 || currentCol < cols - 1) {
-        const directions = [];
+        // Avoid placing walls on the player's start or end position
+        if ((row === 0 && col === 0) || (row === rows - 1 && col === cols - 1)) continue;
 
-        if (currentRow < rows - 1) directions.push('down');
-        if (currentCol < cols - 1) directions.push('right');
-
-        const randomDirection = directions[Math.floor(Math.random() * directions.length)];
-
-        if (randomDirection === 'down') {
-            currentRow++;
-        } else if (randomDirection === 'right') {
-            currentCol++;
-        }
-
-        maze[currentRow][currentCol] = 0; // Create path
-    }
-
-    maze[rows - 1][cols - 1] = 0; // Ensure exit point is open
-
-    // Add random branches for extra difficulty
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (Math.random() < 0.3) maze[i][j] = 0; // Random open spaces
+        if (maze[row][col] === 0) { // Place a wall if the spot is empty
+            maze[row][col] = 1;
+            wallsPlaced++;
         }
     }
 
@@ -88,8 +72,6 @@ function drawMaze() {
 function movePlayer(e) {
     if (gameOver) return;
 
-    console.log(e.key); // Debugging: Check if key presses are detected
-
     let newX = player.x;
     let newY = player.y;
 
@@ -99,7 +81,6 @@ function movePlayer(e) {
     if (e.key === "ArrowRight" && player.x < cols - 1 && maze[player.y][player.x + 1] === 0) newX++;
 
     if (newX !== player.x || newY !== player.y) {
-        console.log(`Moved to: (${newX}, ${newY})`); // Debugging: Confirm movement
         player.x = newX;
         player.y = newY;
         drawMaze();
