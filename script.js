@@ -9,7 +9,7 @@ let gameOver = false;
 // Initialize the maze and player
 function startGame() {
     maze = generateMaze();
-    player = { x: 0, y: 0 };
+    player = { x: 0, y: 0 }; // Starting position
     timeLeft = 60;
     gameOver = false;
     document.getElementById("status").innerText = "";
@@ -31,14 +31,41 @@ function startTimer() {
     }, 1000);
 }
 
-// Generate a random maze (basic structure)
+// Generate a simple random maze
 function generateMaze() {
-    const maze = new Array(rows).fill(0).map(() => new Array(cols).fill(1));
-    // Create a simple random path from start to end
-    for (let i = 0; i < rows; i++) {
-        maze[i][Math.floor(Math.random() * cols)] = 0;
+    const maze = new Array(rows).fill(0).map(() => new Array(cols).fill(1)); // Fill with walls (1)
+
+    // Create a path from start to finish
+    let currentRow = 0;
+    let currentCol = 0;
+    maze[currentRow][currentCol] = 0; // Start point
+
+    while (currentRow < rows - 1 || currentCol < cols - 1) {
+        const directions = [];
+
+        if (currentRow < rows - 1) directions.push('down');
+        if (currentCol < cols - 1) directions.push('right');
+
+        const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+        if (randomDirection === 'down') {
+            currentRow++;
+        } else if (randomDirection === 'right') {
+            currentCol++;
+        }
+
+        maze[currentRow][currentCol] = 0; // Create path
     }
+
     maze[rows - 1][cols - 1] = 0; // Ensure exit point is open
+
+    // Add random branches for extra difficulty
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            if (Math.random() < 0.3) maze[i][j] = 0; // Random open spaces
+        }
+    }
+
     return maze;
 }
 
@@ -47,7 +74,7 @@ function drawMaze() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
-            ctx.fillStyle = maze[row][col] === 1 ? "#333" : "#fff";
+            ctx.fillStyle = maze[row][col] === 1 ? "#333" : "#fff"; // Draw walls or paths
             ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
         }
     }
@@ -63,12 +90,12 @@ function movePlayer(e) {
     let newX = player.x;
     let newY = player.y;
 
-    if (e.key === "ArrowUp") newY--;
-    if (e.key === "ArrowDown") newY++;
-    if (e.key === "ArrowLeft") newX--;
-    if (e.key === "ArrowRight") newX++;
+    if (e.key === "ArrowUp" && player.y > 0 && maze[player.y - 1][player.x] === 0) newY--;
+    if (e.key === "ArrowDown" && player.y < rows - 1 && maze[player.y + 1][player.x] === 0) newY++;
+    if (e.key === "ArrowLeft" && player.x > 0 && maze[player.y][player.x - 1] === 0) newX--;
+    if (e.key === "ArrowRight" && player.x < cols - 1 && maze[player.y][player.x + 1] === 0) newX++;
 
-    if (newX >= 0 && newX < cols && newY >= 0 && newY < rows && maze[newY][newX] === 0) {
+    if (maze[newY][newX] === 0) { // Only move if there’s an open path
         player.x = newX;
         player.y = newY;
         drawMaze();
