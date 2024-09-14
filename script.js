@@ -59,7 +59,11 @@ function drawMaze() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
-            ctx.fillStyle = maze[row][col] === 1 ? "#333" : "#fff"; // Draw walls or paths
+            if (row === rows - 1 && col === cols - 1) {
+                ctx.fillStyle = "green"; // Draw the exit in green
+            } else {
+                ctx.fillStyle = maze[row][col] === 1 ? "#333" : "#fff"; // Draw walls or paths
+            }
             ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
         }
     }
